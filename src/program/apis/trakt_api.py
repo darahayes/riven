@@ -64,14 +64,14 @@ class TraktAPI:
     def validate(self):
         return self.request_handler.execute(HttpMethod.GET, f"{self.BASE_URL}/lists/2")
 
-    def _fetch_data(self, url, params):
+    def _fetch_data(self, url, params, headers=None):
         """Fetch paginated data from Trakt API with rate limiting."""
         all_data = []
         page = 1
 
         while True:
             try:
-                response = self.request_handler.execute(HttpMethod.GET, url, params={**params, "page": page})
+                response = self.request_handler.execute(HttpMethod.GET, url, params={**params, "page": page}, headers=headers)
                 if response.is_ok:
                     data = response.data if isinstance(response.data, list) else [response.data]
                     if not data:
@@ -97,17 +97,17 @@ class TraktAPI:
     def get_watchlist_items(self, user):
         """Get watchlist items from Trakt with pagination support."""
         url = f"{self.BASE_URL}/users/{user}/watchlist"
-        return self._fetch_data(url,{})
+        return self._fetch_data(url, {}, headers={"Cache-Control": "no-cache"})
 
     def get_user_list(self, user, list_name):
         """Get user list items from Trakt with pagination support."""
         url = f"{self.BASE_URL}/users/{user}/lists/{list_name}/items"
-        return self._fetch_data(url, {})
+        return self._fetch_data(url, params={}, headers={"Cache-Control": "no-cache"})
 
     def get_collection_items(self, user, media_type):
         """Get collections from Trakt with pagination support."""
         url = f"{self.BASE_URL}/users/{user}/collection/{media_type}"
-        return self._fetch_data(url, {})
+        return self._fetch_data(url, params={}, headers={"Cache-Control": "no-cache"})
 
     # UNUSED
     def get_liked_lists(self):
